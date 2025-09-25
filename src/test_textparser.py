@@ -1,4 +1,3 @@
-from typing import Text
 import unittest
 from textnode import TextNode, TextType
 from textparser import split_nodes_delimiter
