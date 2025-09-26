@@ -1,3 +1,4 @@
+import re
 from textnode import TextNode, TextType
 
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
@@ -22,3 +23,31 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
         new_nodes.extend(split_nodes)
 
     return new_nodes
+
+def extract_markdown_images(text):
+    list_of_matches = []
+    # pattern = r"!\[([^\[\]]*)\]\(([^\(\)]*)\)" # boot.dev regex (read after completing myself)
+    pattern = r"\!\[.*?\]\(.*?\)"
+    matches = re.findall(pattern, text)
+    for string in matches:
+        string = string[2:len(string)-1]
+        string = string.split("](")
+        list_of_matches.append((string[0], string[1]))
+    return list_of_matches
+
+
+def extract_markdown_links(text):
+    list_of_matches = []
+    # pattern = r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)" # boot.dev regex (read after completing myself)
+    pattern = r"[\s\S]?\[.*?\]\(.*?\)"
+    matches = re.findall(pattern, text)
+    for string in matches:
+        if string[0] == "!":
+            continue
+        if string[0] == "[":
+            string = string[1:len(string)-1]
+        else:
+            string = string[2:len(string)-1]
+        string = string.split("](")
+        list_of_matches.append((string[0], string[1]))
+    return list_of_matches

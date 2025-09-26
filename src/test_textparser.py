@@ -1,9 +1,11 @@
 import unittest
 from textnode import TextNode, TextType
-from textparser import split_nodes_delimiter
+from textparser import extract_markdown_images, extract_markdown_links, split_nodes_delimiter
 
 
 class TestTextParser(unittest.TestCase):
+    # Inline text types tests
+
     def test_delim_bold(self):
         node =  TextNode("This is text with a **bolded** word", TextType.PLAIN)
         new_nodes = split_nodes_delimiter([node], "**", TextType.BOLD)
@@ -66,3 +68,57 @@ class TestTextParser(unittest.TestCase):
             TextNode(" word", TextType.PLAIN),
         ]
         self.assertListEqual(new_nodes, expected)
+
+    # Image extraction tests
+
+    def test_extract_markdown_images(self):
+        matches = extract_markdown_images("This is text with an ![image](https://i.imgur.com/zjjcJKZ.png)")
+        self.assertEqual([("image", "https://i.imgur.com/zjjcJKZ.png")], matches)
+
+    def test_extract_markdown_starts_with_image(self):
+        matches = extract_markdown_images("![This image](https://i.imgur.com/zjjcJKZ.png) is at the start of the string")
+        self.assertEqual([("This image", "https://i.imgur.com/zjjcJKZ.png")], matches)
+
+
+    def test_extract_markdown_multi_images(self):
+        matches = extract_markdown_images("This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif) and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)")
+        expected = [
+            ("rick roll", "https://i.imgur.com/aKaOqIh.gif"),
+            ("obi wan", "https://i.imgur.com/fJRm4Vk.jpeg"),
+        ]
+        self.assertEqual(expected, matches)
+
+    def test_extract_markdown_image_with_link(self):
+        matches = extract_markdown_images("This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif) and [obi wan](https://i.imgur.com/fJRm4Vk.jpeg)")
+        expected = [
+            ("rick roll", "https://i.imgur.com/aKaOqIh.gif"),
+        ]
+        self.assertEqual(expected, matches)
+
+    # Link extraction tests
+
+    def test_extract_markdown_links(self):
+        matches = extract_markdown_links("This is text with a [link](https://www.boot.dev)")
+        self.assertEqual([("link", "https://www.boot.dev")], matches)
+
+    def test_extract_markdown_starts_with_link(self):
+        matches = extract_markdown_links("[This link](https://www.boot.dev) is at the start of the string")
+        self.assertEqual([("This link", "https://www.boot.dev")], matches)
+
+
+    def test_extract_markdown_multi_links(self):
+        matches = extract_markdown_links("This is text with a [rick roll](https://i.imgur.com/aKaOqIh.gif) and [obi wan](https://i.imgur.com/fJRm4Vk.jpeg)")
+        expected = [
+            ("rick roll", "https://i.imgur.com/aKaOqIh.gif"),
+            ("obi wan", "https://i.imgur.com/fJRm4Vk.jpeg"),
+        ]
+        self.assertEqual(expected, matches)
+
+    def test_extract_markdown_link_with_image(self):
+        matches = extract_markdown_links("This is text with a [rick roll](https://i.imgur.com/aKaOqIh.gif) and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)")
+        expected = [
+            ("rick roll", "https://i.imgur.com/aKaOqIh.gif"),
+        ]
+        self.assertEqual(expected, matches)
+
+
