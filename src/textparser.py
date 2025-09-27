@@ -89,3 +89,13 @@ def split_nodes_links(old_nodes):
         if string != "":
             new_nodes.append(TextNode(string, TextType.PLAIN))
     return new_nodes
+
+def text_to_textnodes(text):
+    nodes = [TextNode(text, TextType.PLAIN)]
+    nodes = split_nodes_delimiter(nodes, "**", TextType.BOLD)
+    nodes = split_nodes_delimiter(nodes, "_", TextType.ITALIC)
+    nodes = split_nodes_delimiter(nodes, "`", TextType.CODE)
+    nodes = split_nodes_images(nodes)
+    nodes = split_nodes_links(nodes)
+    return nodes
+

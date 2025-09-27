@@ -1,7 +1,7 @@
+from re import split
 import unittest
-from test_textnode import TestTextNode
 from textnode import TextNode, TextType
-from textparser import extract_markdown_images, extract_markdown_links, split_nodes_delimiter, split_nodes_images, split_nodes_links
+from textparser import extract_markdown_images, extract_markdown_links, split_nodes_delimiter, split_nodes_images, split_nodes_links, text_to_textnodes
 
 
 class TestTextParser(unittest.TestCase):
@@ -219,5 +219,24 @@ class TestTextParser(unittest.TestCase):
         new_nodes = split_nodes_links([node])
         expected = [
             TextNode("Link", TextType.LINK, "https://www.boot.dev"),
+        ]
+        self.assertListEqual(expected, new_nodes)
+
+    # Text to text nodes tests
+
+    def test_full_string(self):
+        string = "This is **text** with an _italic_ word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"
+        new_nodes = text_to_textnodes(string)
+        expected = [
+            TextNode("This is ", TextType.PLAIN),
+            TextNode("text", TextType.BOLD),
+            TextNode(" with an ", TextType.PLAIN),
+            TextNode("italic", TextType.ITALIC),
+            TextNode(" word and a ", TextType.PLAIN),
+            TextNode("code block", TextType.CODE),
+            TextNode(" and an ", TextType.PLAIN),
+            TextNode("obi wan image", TextType.IMAGE, "https://i.imgur.com/fJRm4Vk.jpeg"),
+            TextNode(" and a ", TextType.PLAIN),
+            TextNode("link", TextType.LINK, "https://boot.dev"),
         ]
         self.assertListEqual(expected, new_nodes)
