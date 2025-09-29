@@ -20,14 +20,15 @@ def markdown_to_blocks(markdown):
     return blocks
 
 def block_to_block_type(block):
-    if "# " in block[:7]:
-        return BlockType.HEADING
-    if block[:3] == "```" and block[-3:] == "```":
-        return BlockType.CODE
     splits = block.split("\n")
-
     index = 0
-    # Check quote
+
+    if block.startswith(("# ", "## ", "### ", "#### ", "##### ", "###### ")):
+        return BlockType.HEADING
+
+    if len(splits) > 1 and splits[0].startswith("```") and splits[-1].startswith("```"):
+        return BlockType.CODE
+
     if block.startswith(">"):
         while index < len(splits):
             if splits[index][0] != ">":
@@ -36,7 +37,6 @@ def block_to_block_type(block):
                 return BlockType.QUOTE
             index += 1
 
-    # Check UList
     if block.startswith("- "):
         while index < len(splits):
             if splits[index][:2] != "- ":
@@ -45,7 +45,6 @@ def block_to_block_type(block):
                 return BlockType.ULIST
             index += 1
 
-    # Check OList
     if block.startswith("1. "):
         while index < len(splits):
             if splits[index][:3] != f"{index+1}. ":

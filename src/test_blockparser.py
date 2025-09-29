@@ -94,8 +94,8 @@ class TestBlockParser(unittest.TestCase):
         self.assertNotEqual(BlockType.HEADING, block_type2)
 
     def test_code_blocks(self):
-        codeblock1 = "```This is a code block in one line```"
-        codeblock2 = "```This is a code block\nthat uses 2 lines```"
+        codeblock1 = "```This is a code block in one line\n```"
+        codeblock2 = "```This is a code block\nthat uses 2 lines\n```"
         block_type1 = block_to_block_type(codeblock1)
         block_type2 = block_to_block_type(codeblock2)
         self.assertEqual(BlockType.CODE, block_type1)
@@ -103,14 +103,17 @@ class TestBlockParser(unittest.TestCase):
 
     def test_bad_code_blocks(self):
         bad_codeblock1 = "```This code block is not closed"
-        bad_codeblock2 = "This code block is ont opened"
+        bad_codeblock2 = "This code block is not opened"
         bad_codeblock3 = "`This code block uses single ticks`"
+        bad_codeblock4 = "```This code block doesn't use a newline```"
         block_type1 = block_to_block_type(bad_codeblock1)
         block_type2 = block_to_block_type(bad_codeblock2)
         block_type3 = block_to_block_type(bad_codeblock3)
+        block_type4 = block_to_block_type(bad_codeblock4)
         self.assertNotEqual(BlockType.CODE, block_type1)
         self.assertNotEqual(BlockType.CODE, block_type2)
         self.assertNotEqual(BlockType.CODE, block_type3)
+        self.assertNotEqual(BlockType.CODE, block_type4)
 
     def test_quotes(self):
         quote1 = ">This is a quote"
