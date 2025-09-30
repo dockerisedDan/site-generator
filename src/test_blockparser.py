@@ -308,3 +308,22 @@ class TestBlockParser(unittest.TestCase):
         self.assertEqual(expected1, html1)
         self.assertEqual(expected2, html2)
         self.assertEqual(expected3, html3)
+
+    def test_multiblock_markdown(self):
+        block = "# This is the heading\n"
+        block += "\n"
+        block += "```\nThis is some code\nthat has been nested in a code block\n```\n"
+        block += "\n"
+        block += "This is just a paragraph\nthat shall also contain some **bold** and _italic_\nwords in it\n"
+        block += "\n"
+        block += "This block has some basic inline `code` in it"
+        node = markdown_to_html_node(block)
+        html = node.to_html()
+        expected = "<div>"
+        expected += "<h1>This is the heading</h1>"
+        expected += "<pre><code>This is some code\nthat has been nested in a code block</code></pre>"
+        expected += "<p>This is just a paragraph that shall also contain some <b>bold</b> and <i>italic</i> words in it</p>"
+        expected += "<p>This block has some basic inline <code>code</code> in it</p>"
+        expected += "</div>"
+        self.assertEqual(expected, html)
+
