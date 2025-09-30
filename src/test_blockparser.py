@@ -1,6 +1,6 @@
 import unittest
 
-from blockparser import BlockType, block_to_block_type, markdown_to_blocks
+from blockparser import BlockType, block_to_block_type, markdown_to_blocks, markdown_to_html_node
 
 class TestBlockParser(unittest.TestCase):
     # Block splitting tests
@@ -191,3 +191,120 @@ class TestBlockParser(unittest.TestCase):
         block_type2 = block_to_block_type(paragraph2)
         self.assertEqual(BlockType.PARAGRAPH, block_type1)
         self.assertEqual(BlockType.PARAGRAPH, block_type2)
+
+    # Markdown to HTML Node tests
+
+    def test_paragraphs(self):
+        md = "This is a paragraph\n"
+        md += "that spans multiple lines\n"
+        md += "but has no inlines"
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        expected = "<div><p>This is a paragraph that spans multiple lines but has no inlines</p></div>"
+        self.assertEqual(expected, html)
+
+    def test_paragraphs_with_inlines(self):
+        md = "This is a **bolded** paragraph\n"
+        md += "text in a p\n"
+        md += "tag here\n\n"
+        md += "This is another paragraph with _italic_ and `code` here\n\n"
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        expected = "<div><p>This is a <b>bolded</b> paragraph text in a p tag here</p><p>This is another paragraph with <i>italic</i> and <code>code</code> here</p></div>"
+        self.assertEqual(expected, html)
+
+    def test_codeblock(self):
+        md = "```\n"
+        md += "This is text that _should_ remain\n"
+        md += "the **same** even with inline stuff\n"
+        md += "```"
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        expected = "<div><pre><code>This is text that _should_ remain\nthe **same** even with inline stuff</code></pre></div>"
+        self.assertEqual(expected, html)
+
+    def test_quoteblock(self):
+        md = ">This is a quote\n"
+        md += "> that spans multiple\n"
+        md += "> lines"
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        expected = "<div><blockquote>This is a quote that spans multiple lines</blockquote></div>"
+        self.assertEqual(expected, html)
+
+    def test_quoteblock_with_inlines(self):
+        md = ">This is a `code` quote\n"
+        md += "> that also has **bold**\n"
+        md += "> and _italic_"
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        expected = "<div><blockquote>This is a <code>code</code> quote that also has <b>bold</b> and <i>italic</i></blockquote></div>"
+        self.assertEqual(expected, html)
+
+    def test_ulist_block(self):
+        md = "- This is item 1\n"
+        md += "- This is item 2\n"
+        md += "- This is item 3"
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        expected = "<div><ul><li>This is item 1</li><li>This is item 2</li><li>This is item 3</li></ul></div>"
+        self.assertEqual(expected, html)
+
+    def test_ulist_block_with_inlines(self):
+        md = "- This has **bold**\n"
+        md += "- This has _italic_\n"
+        md += "- This has `code`"
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        expected = "<div><ul><li>This has <b>bold</b></li><li>This has <i>italic</i></li><li>This has <code>code</code></li></ul></div>"
+        self.assertEqual(expected, html)
+
+    def test_olist_block(self):
+        md = "1. This is item 1\n"
+        md += "2. This is item 2\n"
+        md += "3. This is item 3"
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        expected = "<div><ol><li>This is item 1</li><li>This is item 2</li><li>This is item 3</li></ol></div>"
+        self.assertEqual(expected, html)
+
+    def test_olist_block_with_inlines(self):
+        md = "1. This has **bold**\n"
+        md += "2. This has _italic_\n"
+        md += "3. This has `code`"
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        expected = "<div><ol><li>This has <b>bold</b></li><li>This has <i>italic</i></li><li>This has <code>code</code></li></ol></div>"
+        self.assertEqual(expected, html)
+
+    def test_heading_block(self):
+        md = [
+            "# This is heading 1",
+            "## This is heading 2",
+            "### This is heading 3",
+            "#### This is heading 4",
+            "##### This is heading 5",
+            "###### This is heading 6",
+        ]
+        for index in range(len(md)):
+            node = markdown_to_html_node(md[index])
+            html = node.to_html()
+            expected = f"<div><h{index+1}>This is heading {index+1}</h{index+1}></div>"
+            self.assertEqual(expected, html)
+
+    def test_heading_block_with_inlines(self):
+        md1 = "# This is a `code` heading"
+        md2 = "## This is a **bold** heading"
+        md3 = "### This is an _italic_ heading"
+        node1 = markdown_to_html_node(md1)
+        node2 = markdown_to_html_node(md2)
+        node3 = markdown_to_html_node(md3)
+        html1 = node1.to_html()
+        html2 = node2.to_html()
+        html3 = node3.to_html()
+        expected1 = "<div><h1>This is a <code>code</code> heading</h1></div>"
+        expected2 = "<div><h2>This is a <b>bold</b> heading</h2></div>"
+        expected3 = "<div><h3>This is an <i>italic</i> heading</h3></div>"
+        self.assertEqual(expected1, html1)
+        self.assertEqual(expected2, html2)
+        self.assertEqual(expected3, html3)
