@@ -1,8 +1,22 @@
 import os
+from pathlib import Path
 from blockparser import BlockType, markdown_to_html_node, markdown_to_blocks, block_to_block_type, heading_to_html_node
 
+def generate_content_recursive(src_dir, template_path, dst_dir):
+    if not os.path.exists(dst_dir):
+        os.makedirs(dst_dir, exist_ok=True)
+    contents = os.listdir(src_dir)
+    for item in contents:
+        subpath_src = os.path.join(src_dir, item)
+        subpath_dst = os.path.join(dst_dir, item)
+        if os.path.isdir(subpath_src):
+            generate_content_recursive(subpath_src, template_path, subpath_dst)
+        elif os.path.isfile(subpath_src):
+            subpath_dst = Path(subpath_dst).with_suffix(".html")
+            generate_page(subpath_src, template_path, subpath_dst)
+
 def generate_page(src_path, template_path, dst_path):
-    print(f"Generating page from {src_path} -> {dst_path} using {template_path}")
+    print(f" * {src_path} -> {dst_path} using {template_path}")
     f = open(src_path, "r")
     src_file = f.read()
     f.close()

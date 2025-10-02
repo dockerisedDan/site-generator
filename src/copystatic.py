@@ -8,6 +8,7 @@ def copy_files_recursive(src, dst):
     for item in contents:
         subpath_src = os.path.join(src, item)
         subpath_dst = os.path.join(dst, item)
+        print(f" * {subpath_src} -> {subpath_dst}")
         if os.path.isdir(subpath_src):
             copy_files_recursive(subpath_src, subpath_dst)
         elif os.path.isfile(subpath_src):
