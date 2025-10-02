@@ -286,11 +286,16 @@ class TestBlockParser(unittest.TestCase):
             "##### This is heading 5",
             "###### This is heading 6",
         ]
+        md2 = "#  This is a heading with a leading space"
+        node2 = markdown_to_html_node(md2)
+        html2 = node2.to_html()
+        expected2 = "<div><h1> This is a heading with a leading space</h1></div>"
         for index in range(len(md)):
             node = markdown_to_html_node(md[index])
             html = node.to_html()
             expected = f"<div><h{index+1}>This is heading {index+1}</h{index+1}></div>"
             self.assertEqual(expected, html)
+        self.assertEqual(expected2, html2)
 
     def test_heading_block_with_inlines(self):
         md1 = "# This is a `code` heading"

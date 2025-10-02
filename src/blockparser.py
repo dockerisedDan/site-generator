@@ -59,17 +59,13 @@ def block_to_block_type(block):
     return BlockType.PARAGRAPH
 
 def heading_to_html_node(block):
-    count = 0
-    for index in range(len(block)):
-        if block[index] != "#" or index == 6:
-            break
-        count += 1
-    text = block.lstrip("# ")
+    level = len(block) - len(block.lstrip("#"))
+    text = block[level+1:].rstrip()
     text_nodes = text_to_textnodes(text)
     children = []
     for text_node in text_nodes:
         children.append(text_node_to_html_node(text_node))
-    return ParentNode(tag=f"h{count}", children=children)
+    return ParentNode(tag=f"h{level}", children=children)
 
 def paragraph_to_html_node(block):
     lines = block.split("\n")
