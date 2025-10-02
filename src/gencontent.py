@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 from blockparser import BlockType, markdown_to_html_node, markdown_to_blocks, block_to_block_type, heading_to_html_node
 
-def generate_content_recursive(src_dir, template_path, dst_dir):
+def generate_content_recursive(src_dir, template_path, dst_dir, basepath):
     if not os.path.exists(dst_dir):
         os.makedirs(dst_dir, exist_ok=True)
     contents = os.listdir(src_dir)
@@ -10,12 +10,12 @@ def generate_content_recursive(src_dir, template_path, dst_dir):
         subpath_src = os.path.join(src_dir, item)
         subpath_dst = os.path.join(dst_dir, item)
         if os.path.isdir(subpath_src):
-            generate_content_recursive(subpath_src, template_path, subpath_dst)
+            generate_content_recursive(subpath_src, template_path, subpath_dst, basepath)
         elif os.path.isfile(subpath_src):
             subpath_dst = Path(subpath_dst).with_suffix(".html")
-            generate_page(subpath_src, template_path, subpath_dst)
+            generate_page(subpath_src, template_path, subpath_dst, basepath)
 
-def generate_page(src_path, template_path, dst_path):
+def generate_page(src_path, template_path, dst_path, basepath):
     print(f" * {src_path} -> {dst_path} using {template_path}")
     f = open(src_path, "r")
     src_file = f.read()
@@ -27,6 +27,8 @@ def generate_page(src_path, template_path, dst_path):
     page_title = extract_heading(src_file)
     gen_file = template_file.replace("{{ Title }}", page_title)
     gen_file = gen_file.replace("{{ Content }}", md_conv_html)
+    gen_file = gen_file.replace('href="/', f'href="{basepath}')
+    gen_file = gen_file.replace('src="/', f'src="{basepath}')
     dest_dir = os.path.dirname(dst_path)
     try:
         os.makedirs(dest_dir, exist_ok=True)
