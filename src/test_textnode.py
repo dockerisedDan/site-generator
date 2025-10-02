@@ -1,7 +1,5 @@
 import unittest
-import htmlnode
 from textnode import TextNode, TextType, text_node_to_html_node
-import textnode
 
 class TestTextNode(unittest.TestCase):
     # Text node tests
@@ -72,7 +70,7 @@ class TestTextNode(unittest.TestCase):
         node = TextNode("This is an image node", TextType.IMAGE, "http://www.boot.dev")
         html_node = text_node_to_html_node(node)
         self.assertEqual(html_node.tag, "img")
-        self.assertEqual(html_node.value, None)
+        self.assertEqual(html_node.value, "")
         self.assertEqual(html_node.props, { "src": "http://www.boot.dev", "alt": "This is an image node" })
 
     def test_not_valid_tag(self):
